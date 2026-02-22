@@ -207,6 +207,15 @@ export const mockUserTrackings = [
     flightNumber: 'AF1',
     notificationEnabled: true,
     createdAt: '2024-02-10T08:15:00'
+  },
+  {
+    trackingId: 4,
+    type: 'entity',
+    entityId: 2,
+    entityName: 'Scott Swanson',
+    entityType: 'TEACHING_FACULTY',
+    notificationEnabled: true,
+    createdAt: '2024-02-01T10:00:00'
   }
 ];
 
