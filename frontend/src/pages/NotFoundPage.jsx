@@ -6,10 +6,10 @@ function NotFoundPage() {
     <div className="not-found-page" style={{ textAlign: 'center', padding: '60px 20px' }}>
       <h1 style={{ fontSize: '72px', margin: '0' }}>404</h1>
       <h2>Page Not Found</h2>
-      <p>The page you're looking for doesn't exist.</p>
-      <Link to="/" className="btn btn-primary">
-        Go Home
-      </Link>
+      <p style={{ color: '#7f8c8d', marginBottom: '24px' }}>
+        The page you're looking for doesn't exist.
+      </p>
+      <Link to="/" className="btn btn-primary">Go Home</Link>
     </div>
   );
 }
