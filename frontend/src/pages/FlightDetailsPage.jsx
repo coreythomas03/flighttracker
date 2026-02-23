@@ -7,7 +7,7 @@ import ErrorMessage from '../components/common/ErrorMessage';
 import flightService from '../services/flightService';
 import { getFlightById, mockAircraft } from '../utils/mockData';
 
-// ─── Toggle this to false once the backend /flights/:id endpoint is live ──────
+//Toggle this to false once the backend /flights/:id endpoint is live
 const USE_MOCK = true;
 
 function FlightDetailsPage() {
@@ -27,11 +27,11 @@ function FlightDetailsPage() {
       try {
         let flightData;
         if (USE_MOCK) {
-          // Simulate network delay
+          //Simulate network delay
           await new Promise(res => setTimeout(res, 300));
           flightData = getFlightById(flightId);
 
-          // Resolve aircraft from mock data
+          //Resolve aircraft from mock data
           if (flightData) {
             const matchedAircraft = mockAircraft.find(
               a => a.aircraftId === flightData.aircraftId
@@ -39,12 +39,12 @@ function FlightDetailsPage() {
             setAircraft(matchedAircraft || null);
           }
         } else {
-          // Real API call - GET /api/flights/:id
+          //Real API call - GET /api/flights/:id
           flightData = await flightService.getFlightById(flightId);
 
-          // Optionally fetch aircraft details separately if the response doesn't embed them
-          // const aircraftData = await aircraftService.getById(flightData.aircraftId);
-          // setAircraft(aircraftData);
+          //Optionally fetch aircraft details separately if the response doesn't embed them
+          //const aircraftData = await aircraftService.getById(flightData.aircraftId);
+          //setAircraft(aircraftData);
         }
 
         setFlight(flightData || null);

@@ -8,7 +8,7 @@ import { useApp } from '../context/AppContext';
 import { mockFlights, searchFlights } from '../utils/mockData';
 import '../styles/Flight.css';
 
-// ─── Toggle this to false once the backend /flights/search endpoint is live ───
+//Toggle this to false once the backend /flights/search endpoint is live
 const USE_MOCK = true;
 
 function SearchPage() {
@@ -19,7 +19,7 @@ function SearchPage() {
     searchResults, setSearchResults,
   } = useApp();
 
-  // On first mount, show all mock flights (or all real flights) if nothing searched yet
+  //On first mount, show all mock flights (or all real flights) if nothing searched yet
   useEffect(() => {
     if (searchResults === null) {
       if (USE_MOCK) {
@@ -28,7 +28,7 @@ function SearchPage() {
         handleSearch('');
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = async (query) => {
@@ -39,11 +39,11 @@ function SearchPage() {
     try {
       let results;
       if (USE_MOCK) {
-        // Simulate network delay so the spinner is visible
+        //Simulate network delay so the spinner is visible
         await new Promise(res => setTimeout(res, 400));
         results = searchFlights(query);
       } else {
-        // Real API call - GET /api/flights/search?flightNumber=<query>
+        //Real API call - GET /api/flights/search?flightNumber=<query>
         results = await flightService.searchByFlightNumber(query);
       }
       setSearchResults(results);
