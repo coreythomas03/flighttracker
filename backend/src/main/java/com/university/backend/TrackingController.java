@@ -1,23 +1,26 @@
 package com.university.backend;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.http.ResponseEntity;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api")
-public class Controller {
+@RequestMapping("/api/tracking")
+public class TrackingController {
     
     /*
-	 * Handles POST 
+	 * Handles trackingService POST 
 	*/
-	@PostMapping("/tracking") // Maps handling to /api/tracked
-	public String search(@RequestBody Celeb obj) {
+	@PostMapping("")
+	public ResponseEntity<String> getUserTracking(@RequestBody Celeb obj) {
 
-		// a simple checks to ensure consistent input
+		// simple checks to ensure expcted argument
 		if (obj.getTrackingID() != 1)
-			return "Only celebs allowed so far(trackingID==1)";
+			return ResponseEntity.badRequest().body("Only celebs allowed so far(trackingID==1)");
 
 		System.out.println("Tracking ID: " + obj.getTrackingID() + "\n" + 
                             "Entity Type: " + obj.getEntityType() + "\n"  +  
@@ -25,15 +28,24 @@ public class Controller {
                             "Time: " + obj.getTime()
         );
 
-		return "Message Received and Parsed";
+		return ResponseEntity.ok("Impl in progress. Compare output with arguments.");
 	}
 
 	/*
-	 * Handles GET requests
+	 * Handles trackingService GET
 	*/
-	@GetMapping("tracked")
-	public String response(@RequestBody) {return "Implementation in Progress"}
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<String> addTracking(@PathVariable int userId) {
+		return ResponseEntity.ok("Implement GET service. Given userID: " + userId);
+	}
 
+	/*
+	 * Handles trackingService DELETE
+	*/
+	@DeleteMapping("/{trackingId}")
+	public ResponseEntity<String> removeTracking(@PathVariable int trackingId) {
+		return ResponseEntity.ok("Implement DELETE service. Given trackingID: " + trackingId);
+	}
 
 }
 
@@ -46,6 +58,8 @@ private enum Type {FLIGHT, AIRCRAFT, ENTITY}
 // common object between entities to inherit from, refactor after 
 private static class entity {}
 */
+
+// Use as DTO
 private static class Celeb {
 	private int trackingID = 1;
 	private EntityType type;
@@ -59,23 +73,7 @@ private static class Celeb {
     public String getTime() {return time.toString();}
 }
 
-private static class Aircraft {
-	private int trackingID = 2;
-	private Type type;
-	private int aircraftID;
-	private String tailNum;
-	private boolean notif;
-	private LocalDateTime time;
-}
-
-private static class Flight {
-	private int trackingID = 3;
-	private Type type = Type.FLIGHT;
-	private String flightNum;
-	private boolean notif;
-	private LocalDateTime time;
-}
-
+// Use as DTO
 private static class Faculty {
 	private int trackingID = 4;
 	private Type type = Type.ENTITY;
