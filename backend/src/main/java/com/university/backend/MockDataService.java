@@ -50,9 +50,41 @@ public class MockDataService {
         ));
 
         userTrackings.add(Map.of(
-                "trackingId", 1,
-                "entityName", "Taylor Swift",
-                "notificationEnabled", true
+            "trackingId", 1,
+            "type", "entity",
+            "entityId", 1,
+            "entityName", "Taylor Swift_backend",
+            "entityType", "CELEBRITY",
+            "notificationEnabled", true,
+            "createdAt", "2024-02-01T10:00:00"
+        ));
+
+        userTrackings.add(Map.of(
+            "trackingId", 2,
+            "type", "aircraft",
+            "aircraftId", 4,
+            "tailNumber", "N1KE",
+            "aircraftType", "Gulfstream G-V_backend",
+            "notificationEnabled", false,
+            "createdAt", "2024-02-05T14:30:00"
+        ));
+
+        userTrackings.add(Map.of(
+            "trackingId", 3,
+            "type", "flight",
+            "flightNumber", "AF1_backend",
+            "notificationEnabled", true,
+            "createdAt", "2024-02-10T08:15:00"
+        ));
+
+        userTrackings.add(Map.of(
+            "trackingId", 4,
+            "type", "entity",
+            "entityId", 2,
+            "entityName", "Scott Swanson_backend",
+            "entityType", "TEACHING_FACULTY",
+            "notificationEnabled", true,
+            "createdAt", "2024-02-01T10:00:00"
         ));
     }
 
