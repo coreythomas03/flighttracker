@@ -9,10 +9,13 @@ function TrackingPage() {
   useEffect(() => {
     const fetchTrackings = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/tracked');
+        const base = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api';
+        const response = await fetch(`${base}/tracking`);
         const data = await response.json();
 
         if (data && data.length > 0) {
+          console.log('Succesfully called backend fetching trackings:');
+          console.log('Trackings data:', data);
           setTrackings(data);
         } else {
           setTrackings(mockUserTrackings);

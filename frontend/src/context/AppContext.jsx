@@ -5,12 +5,21 @@ const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+
+  const clearError = () => setError(null);
 
   const value = {
     loading,
     setLoading,
     error,
-    setError
+    setError,
+    clearError,
+    searchTerm,
+    setSearchTerm,
+    searchResults,
+    setSearchResults
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

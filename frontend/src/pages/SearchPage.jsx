@@ -1,67 +1,101 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import FlightSearch from '../components/flight/FlightSearch';
+import TeamList from '../components/flight/TeamList';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import flightService from '../services/flightService';
+import { useApp } from '../context/AppContext';
+import teamService from '../services/teamService';
+import { mockTeams,searchTeams,mockFlights, searchFlights } from '../utils/mockData';
 import '../styles/Flight.css';
-import { FlightCard,} from './../components/flight';// FLIGHT COMPONENTS
-import {
-  mockFlights,
-  searchFlights
-} from './../utils/mockData';
 
-// Before (Mock):
-//const results = searchFlights(query);
-// After (Real API):
-//const results = await flightService.searchByFlightNumber(query);
+// Toggle this to false once the backend /api/teams endpoint is live
+const USE_MOCK = true;
 
 function SearchPage() {
-  const [searchResults, setSearchResults] = useState(mockFlights);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const {
+    loading, setLoading,
+    error, setError, clearError,
+    searchTerm, setSearchTerm,
+    searchResults, setSearchResults,
+  } = useApp();
 
-  const handleSearch = (query) => {
+  // On first mount, show all teams
+  useEffect(() => {
+    if (searchResults === null) {
+      if (USE_MOCK) {
+        setSearchResults(mockTeams);
+      } else {
+        fetchAllTeams();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchAllTeams = async () => {
+    setLoading(true);
+    clearError();
+    
+    try {
+      const teams = await teamService.getAllTeams();
+      setSearchResults(teams);
+    } catch (err) {
+      console.error('Failed to fetch teams:', err);
+      setError('Failed to load teams. Using mock data.');
+      // Fallback to mock data
+      setSearchResults(mockTeams);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (query) => {
     setSearchTerm(query);
     setLoading(true);
+    clearError();
 
-    // Simulate API delay
-    setTimeout(() => {
-      const results = searchFlights(query);
+    try {
+      let results;
+      if (USE_MOCK) {
+        // Simulate network delay
+        await new Promise(res => setTimeout(res, 400));
+        results = searchTeams(query);
+      } else {
+        // Real API call - if backend supports search, use it
+        // Otherwise filter client-side
+        const allTeams = await teamService.getAllTeams();
+        if (!query) {
+          results = allTeams;
+        } else {
+          const searchTerm = query.toLowerCase();
+          results = allTeams.filter(team =>
+            team.team.toLowerCase().includes(searchTerm) ||
+            team.category.toLowerCase().includes(searchTerm) ||
+            team.callsign.toLowerCase().includes(searchTerm)
+          );
+        }
+      }
       setSearchResults(results);
+    } catch (err) {
+      console.error('Search error:', err);
+      setError('Failed to search teams. Please try again.');
+      setSearchResults([]);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   return (
     <div className="search-page">
-      <h1>Search Flights</h1>
+      <h1>Search Teams</h1>
       <FlightSearch onSearch={handleSearch} initialValue={searchTerm} />
 
-      {loading ? (
-        <LoadingSpinner message="Searching flights..." />
-      ) : (
-        <>
-          <div style={{ marginTop: '24px', marginBottom: '16px' }}>
-            <p style={{ color: '#7f8c8d' }}>
-              {searchResults.length} flight{searchResults.length !== 1 ? 's' : ''} found
-              {searchTerm && ` for "${searchTerm}"`}
-            </p>
-          </div>
+      {error && <ErrorMessage message={error} onRetry={() => handleSearch(searchTerm)} />}
 
-          {searchResults.length > 0 ? (
-            <div className="search-results">
-              {searchResults.map(flight => (
-                <FlightCard key={flight.flightId} flight={flight} />
-              ))}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '8px' }}>
-              <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>🔍</p>
-              <h3>No flights found</h3>
-              <p style={{ color: '#7f8c8d' }}>Try searching for a different flight number or airport</p>
-            </div>
-          )}
-        </>
+      {loading ? (
+        <LoadingSpinner message="Searching teams..." />
+      ) : (
+        <TeamList teams={searchResults || []} searchTerm={searchTerm} />
       )}
     </div>
   );
