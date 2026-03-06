@@ -1,6 +1,6 @@
 # NBA Charter Flight Data Collection
 # Fetches live ADS-B data from Airplanes.live for each team in database/teams.json
-# and writes results to database/flights_snapshot.json. Uses 10s delay between requests.
+# and writes results to database/flights_snapshot.json. Rate limit: 15s between requests; retries on 429.
 
 $ErrorActionPreference = "Continue"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -8,7 +8,9 @@ $DatabaseDir = Join-Path $ScriptDir "..\database"
 $TeamsPath = Join-Path $DatabaseDir "teams.json"
 $SnapshotPath = Join-Path $DatabaseDir "flights_snapshot.json"
 $ApiBase = "http://api.airplanes.live/v2/callsign"
-$DelaySeconds = 10
+$DelaySeconds = 15
+$RetryWaitSeconds = 90
+$MaxRetries = 2
 
 $teamsData = Get-Content $TeamsPath -Raw | ConvertFrom-Json
 $teams = @($teamsData.teams)
@@ -38,48 +40,62 @@ foreach ($t in $teams) {
     $callsign = $t.callsign.Trim()
     $existing = $teamsMap[$callsign]
 
-    try {
-        $url = "$ApiBase/$([uri]::EscapeDataString($callsign))"
-        $data = Invoke-RestMethod -Uri $url -Method Get
-        $total = if ($null -eq $data.total) { 0 } else { $data.total }
+    $url = "$ApiBase/$([uri]::EscapeDataString($callsign))"
+    $retryCount = 0
+    $done = $false
 
-        if ($total -eq 1) {
-            $ts = if ($null -ne $data.now) { $data.now } elseif ($null -ne $data.ctime) { $data.ctime } else { [long](Get-Date -UFormat %s) * 1000 }
-            $teamsMap[$callsign] = [PSCustomObject]@{
-                team      = $team
-                callsign  = $callsign
-                is_flying = $true
-                last_seen = $ts
-                raw       = $data
-            }
-            Write-Host "[$i/$($teams.Count)] $team ($callsign): flying - updated"
-        } else {
-            if ($existing) {
+    while (-not $done) {
+        try {
+            $data = Invoke-RestMethod -Uri $url -Method Get
+            $total = if ($null -eq $data.total) { 0 } else { $data.total }
+
+            if ($total -eq 1) {
+                $ts = if ($null -ne $data.now) { $data.now } elseif ($null -ne $data.ctime) { $data.ctime } else { [long](Get-Date -UFormat %s) * 1000 }
                 $teamsMap[$callsign] = [PSCustomObject]@{
                     team      = $team
                     callsign  = $callsign
-                    is_flying = $false
-                    last_seen = $existing.last_seen
-                    raw       = $existing.raw
+                    is_flying = $true
+                    last_seen = $ts
+                    raw       = $data
                 }
-                Write-Host "[$i/$($teams.Count)] $team ($callsign): not flying - kept last known"
+                Write-Host "[$i/$($teams.Count)] $team ($callsign): flying - updated"
             } else {
-                $teamsMap[$callsign] = [PSCustomObject]@{
-                    team      = $team
-                    callsign  = $callsign
-                    is_flying = $false
-                    last_seen = $null
-                    raw       = $null
+                if ($existing) {
+                    $teamsMap[$callsign] = [PSCustomObject]@{
+                        team      = $team
+                        callsign  = $callsign
+                        is_flying = $false
+                        last_seen = $existing.last_seen
+                        raw       = $existing.raw
+                    }
+                    Write-Host "[$i/$($teams.Count)] $team ($callsign): not flying - kept last known"
+                } else {
+                    $teamsMap[$callsign] = [PSCustomObject]@{
+                        team      = $team
+                        callsign  = $callsign
+                        is_flying = $false
+                        last_seen = $null
+                        raw       = $null
+                    }
+                    Write-Host "[$i/$($teams.Count)] $team ($callsign): not flying - no prior data"
                 }
-                Write-Host "[$i/$($teams.Count)] $team ($callsign): not flying - no prior data"
             }
-        }
-    } catch {
-        Write-Host "[$i/$($teams.Count)] $team ($callsign): ERROR - $($_.Exception.Message)" -ForegroundColor Red
-        if ($existing) {
-            $teamsMap[$callsign] = [PSCustomObject]@{ team = $team; callsign = $callsign; is_flying = $false; last_seen = $existing.last_seen; raw = $existing.raw }
-        } else {
-            $teamsMap[$callsign] = [PSCustomObject]@{ team = $team; callsign = $callsign; is_flying = $false; last_seen = $null; raw = $null }
+            $done = $true
+        } catch {
+            $is429 = $_.Exception.Message -match '429'
+            if ($is429 -and $retryCount -lt $MaxRetries) {
+                $retryCount++
+                Write-Host "[$i/$($teams.Count)] $team ($callsign): 429 Too Many Requests - waiting ${RetryWaitSeconds}s then retry $retryCount/$MaxRetries" -ForegroundColor Yellow
+                Start-Sleep -Seconds $RetryWaitSeconds
+            } else {
+                Write-Host "[$i/$($teams.Count)] $team ($callsign): ERROR - $($_.Exception.Message)" -ForegroundColor Red
+                if ($existing) {
+                    $teamsMap[$callsign] = [PSCustomObject]@{ team = $team; callsign = $callsign; is_flying = $false; last_seen = $existing.last_seen; raw = $existing.raw }
+                } else {
+                    $teamsMap[$callsign] = [PSCustomObject]@{ team = $team; callsign = $callsign; is_flying = $false; last_seen = $null; raw = $null }
+                }
+                $done = $true
+            }
         }
     }
 
