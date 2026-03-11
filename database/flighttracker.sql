@@ -76,8 +76,8 @@ CREATE TABLE flights (
   airline_icao            CHAR(3),
   flight_number           VARCHAR(16),
   aircraft_type           VARCHAR(16),
-  departure_airport_id    BIGINT UNSIGNED NOT NULL,
-  arrival_airport_id      BIGINT UNSIGNED NOT NULL,
+  departure_airport_id    BIGINT UNSIGNED NULL,
+  arrival_airport_id      BIGINT UNSIGNED NULL,
 
   scheduled_departure_utc DATETIME,
   scheduled_arrival_utc   DATETIME,
@@ -87,16 +87,25 @@ CREATE TABLE flights (
   status ENUM('SCHEDULED','ACTIVE','LANDED','CANCELLED','DIVERTED','UNKNOWN')
          DEFAULT 'UNKNOWN',
 
+  live_updated_utc DATETIME(3) NULL,
+  live_latitude DECIMAL(9,6) NULL,
+  live_longitude DECIMAL(9,6) NULL,
+  live_altitude_ft INT NULL,
+  live_ground_speed_kt DECIMAL(8,1) NULL,
+  live_heading_deg DECIMAL(6,2) NULL,
+  last_seen_utc DATETIME(3) NULL,
+
   distance_km DECIMAL(8,2),
   duration_minutes INT,
   notes VARCHAR(255),
 
   UNIQUE KEY uq_external (external_flight_id),
+  UNIQUE KEY uq_callsign (callsign),
   KEY idx_dep_time (departure_airport_id, scheduled_departure_utc),
   KEY idx_arr_time (arrival_airport_id, scheduled_arrival_utc),
 
-  CONSTRAINT fk_dep_airport FOREIGN KEY (departure_airport_id) REFERENCES airports(id),
-  CONSTRAINT fk_arr_airport FOREIGN KEY (arrival_airport_id) REFERENCES airports(id)
+  CONSTRAINT fk_dep_airport FOREIGN KEY (departure_airport_id) REFERENCES airports(id) ON DELETE SET NULL,
+  CONSTRAINT fk_arr_airport FOREIGN KEY (arrival_airport_id) REFERENCES airports(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- ============================================================
@@ -173,12 +182,20 @@ SELECT
   f.status,
   f.distance_km,
 
+  f.live_updated_utc,
+  f.live_latitude,
+  f.live_longitude,
+  f.live_altitude_ft,
+  f.live_ground_speed_kt,
+  f.live_heading_deg,
+  f.last_seen_utc,
+
   TIMESTAMPDIFF(MINUTE, f.scheduled_departure_utc, f.scheduled_arrival_utc) AS scheduled_duration_min,
   TIMESTAMPDIFF(MINUTE, f.actual_departure_utc, f.actual_arrival_utc) AS actual_duration_min
 
 FROM flights f
-JOIN airports dep ON dep.id = f.departure_airport_id
-JOIN airports arr ON arr.id = f.arrival_airport_id;
+LEFT JOIN airports dep ON dep.id = f.departure_airport_id
+LEFT JOIN airports arr ON arr.id = f.arrival_airport_id;
 
 CREATE VIEW v_team_flight_list AS
 SELECT
