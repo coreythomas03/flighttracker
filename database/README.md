@@ -1,6 +1,18 @@
 # /database
 
-Useful SQL command to see status of teams in the database:
+## Connect to MySQL (Docker)
+
+After starting the project with `docker compose up --build -d`:
+
+```bash
+docker exec -it flight_tracker_mysql mysql -u root -p nba_flight_tracker
+```
+
+Use the MySQL password from your `.env` when prompted.
+
+---
+
+## Useful SQL: team status
 
 ```sql
 SELECT t.name AS team_name, f.callsign, f.live_latitude, f.live_longitude,
@@ -9,3 +21,4 @@ SELECT t.name AS team_name, f.callsign, f.live_latitude, f.live_longitude,
 FROM flights f
 JOIN teams t ON t.callsign = f.callsign;
 ```
+
