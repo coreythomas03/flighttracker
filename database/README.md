@@ -12,6 +12,8 @@ Static data files, schema, and ingestion logs.
 
 **`flight_refresh.log`** — Written by the Spring Boot backend on each full or flying refresh. One line per run: timestamp + flying teams or "No teams currently flying."
 
+**`flight_refresh.log`** — one line per script run. Example: `2025-03-09T12:00:00Z fetchFlightData.ps1: Dallas Mavericks not flying. Miami Heat flying. Orlando Magic not flying.` (or `refreshFlyingOnly.ps1: ...` for the flying-only run). Created automatically; ignored by git (`*.log`).
+
 ## How the API Works
 
 Flight data comes from the [Airplanes.live REST API](http://api.airplanes.live/v2/). Query by charter callsign:
