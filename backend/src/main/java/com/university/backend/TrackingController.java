@@ -50,6 +50,9 @@ public class TrackingController {
         }
     }
 
+    /*
+     * Change out DTO for Mock obj variable
+    */
     @PostMapping("")
     public ResponseEntity<String> getUserTracking(@RequestBody Celeb obj) {
         if (obj.getTrackingID() != 1)
@@ -63,6 +66,10 @@ public class TrackingController {
         return ResponseEntity.ok("Implement DELETE service. Given trackingID: " + trackingId);
     }
 
+    /*
+     * Internal class intended as DTO to match Frontend needs 
+     * deprecated for ResponseEntity?
+    */
     private static class Celeb {
         private int trackingID = 1;
         private String type;

@@ -8,6 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class BackendApplicationTests {
 
+	// Default test. Ensures proper loading of reosources.
 	@Test
 	void contextLoads() {
 	}
