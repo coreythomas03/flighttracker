@@ -7,10 +7,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
-import java.time.LocalDateTime;
-import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * GET /api/tracking - returns list of tracked items (expected by frontend TrackingPage).
@@ -38,9 +41,9 @@ public class TrackingController {
             return ResponseEntity.ok(mock.getUserTrackings());
         }
     }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> addTracking(@PathVariable int userId) {
+    
+    @PostMapping("") //@GetMapping("/user/{userId}")
+    public ResponseEntity<?> addTracking(/*@PathVariable int userId*/) {
         try {
             return restTemplate.getForEntity(
                     "https://allanswers.com/api/tracking/user/" + userId,
@@ -53,12 +56,20 @@ public class TrackingController {
     /*
      * Change out DTO for Mock obj variable
     */
-    @PostMapping("")
-    public ResponseEntity<String> getUserTracking(@RequestBody Celeb obj) {
-        if (obj.getTrackingID() != 1)
+    @GetMapping("/user/{userId}") //@PostMapping("")
+    public ResponseEntity<Map<String, String>> getUserTracking(@PathVariable int userId) {
+
+        /*if (obj.getTrackingID() != 1)
             return ResponseEntity.badRequest().body("Only celebs allowed so far(trackingID==1)");
 
         return ResponseEntity.ok("Impl in progress. Compare output with arguments.");
+        */
+        Map<String, String> map = new HashMap<String, String>();
+
+        
+
+        ResponseEntity<Map<String, String>> resp = ResponseEntity.ok(map);
+        return resp;
     }
 
     @DeleteMapping("/{trackingId}")
