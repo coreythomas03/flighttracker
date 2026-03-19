@@ -30,6 +30,7 @@ public class FlightController {
         } catch (Exception e) {
             return ResponseEntity.ok(mock.getAllFlights());
         }
+
     }
 
     @GetMapping("/search")

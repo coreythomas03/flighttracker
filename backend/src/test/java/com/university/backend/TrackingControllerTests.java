@@ -1,14 +1,14 @@
 package com.university.backend;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.web.client.RestTemplate;
+// import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import org.springframework.http.HttpStatus;
+// import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
+// import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +20,6 @@ import java.util.Map;
 
 /*
  * Set of tests for the TrackingController Services.
- * @author Ernesto
 */
 @SpringBootTest
 @AutoConfigureRestTestClient
@@ -103,7 +102,7 @@ public class TrackingControllerTests {
     public void testAddTracking() {
 
         int userId = 1;
-        ResponseEntity<?> resp = controller.addTracking(userId);
+        ResponseEntity<?> resp = controller.addTracking(); //addTracking(userId);
         List<Map<String, Object>> userTrackingList = (List<Map<String, Object>>)resp.getBody();
 
         assertEquals(((String)userTrackingList.get(0).get("trackingId")), "1");

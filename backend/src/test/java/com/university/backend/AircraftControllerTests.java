@@ -17,7 +17,6 @@ import java.util.Map;
 /*
  * Set of tests for the AircraftController Services.
  * Inspiration taken from tutorial on https://spring.io/guides/gs/testing-web
- * @author Ernesto
 */
 @SpringBootTest
 @AutoConfigureRestTestClient

@@ -5,26 +5,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+//import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.http.HttpStatusCode;
+//import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
 
 /**
  * GET /api/tracking - returns list of tracked items (expected by frontend TrackingPage).
  */
-
 @RestController
 @RequestMapping("/api/tracking")
 public class TrackingController {
 
     private final RestTemplate restTemplate;
     private final MockDataService mock;
+    Team team;
 
     public TrackingController(RestTemplate restTemplate, MockDataService mock) {
         this.restTemplate = restTemplate;
@@ -44,13 +45,14 @@ public class TrackingController {
     
     @PostMapping("") //@GetMapping("/user/{userId}")
     public ResponseEntity<?> addTracking(/*@PathVariable int userId*/) {
-        try {
+        /*try {
             return restTemplate.getForEntity(
                     "https://allanswers.com/api/tracking/user/" + userId,
                     Object.class);
         } catch (Exception e) {
             return ResponseEntity.ok(mock.getUserTrackings());
-        }
+        }*/
+       return ResponseEntity.ok(mock.getUserTrackings());
     }
 
     /*
@@ -63,12 +65,17 @@ public class TrackingController {
             return ResponseEntity.badRequest().body("Only celebs allowed so far(trackingID==1)");
 
         return ResponseEntity.ok("Impl in progress. Compare output with arguments.");
-        */
-        Map<String, String> map = new HashMap<String, String>();
-
         
+       /*if (team == null) {team = new Team();}
+        Map<String, String> dataMap = new HashMap<String, String>();
 
-        ResponseEntity<Map<String, String>> resp = ResponseEntity.ok(map);
+        dataMap.put("teamName", team.getName());
+        team.getNbaTeamId();
+        team.getCity();
+        team.getConference();
+        */
+        
+        ResponseEntity<Map<String, String>> resp = ResponseEntity.ok().build();
         return resp;
     }
 
@@ -81,11 +88,11 @@ public class TrackingController {
      * Internal class intended as DTO to match Frontend needs 
      * deprecated for ResponseEntity?
     */
-    private static class Celeb {
-        private int trackingID = 1;
-        private String type;
-        private String entityName;
-        private boolean notif;
-        public int getTrackingID() { return trackingID; }
-    }
+    // private static class Celeb {
+    //     private int trackingID = 1;
+    //     private String type;
+    //     private String entityName;
+    //     private boolean notif;
+    //     public int getTrackingID() { return trackingID; }
+    // }
 }
