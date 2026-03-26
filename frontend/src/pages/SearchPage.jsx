@@ -53,6 +53,7 @@ function SearchPage() {
   const { isFavourite } = useFavourites();
   const [sortMode, setSortMode]       = useState('active');
   const [showSortMenu, setShowSortMenu] = useState(false);
+  /** Full list from API (or mock); search filters this without re-fetching */
   const [allTeamsCache, setAllTeamsCache] = useState(null);
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import apiClient from './api';
 import { normalizeTeamsFromApi } from '../utils/teamApiMapper';
 
 const teamService = {
+  // Get all teams (normalized for TeamCard: team, callsign, category, status, …)
   getAllTeams: async () => {
     try {
       const response = await apiClient.get('/teams');

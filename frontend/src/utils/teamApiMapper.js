@@ -4,7 +4,10 @@
 export function normalizeTeamFromApi(row) {
   if (!row || typeof row !== 'object') return null;
 
-  const team = row.team ?? row.teamName ?? '';
+  const team =
+    row.team ??
+    row.teamName ??
+    '';
   const callsign = (row.callsign ?? row.callSign ?? '').trim();
   if (!callsign && !team) return null;
 

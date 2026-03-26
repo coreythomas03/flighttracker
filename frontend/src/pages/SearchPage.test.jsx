@@ -109,6 +109,7 @@ describe('SearchPage', () => {
 
     expect(await screen.findByText('Dallas Cowboys')).toBeInTheDocument();
     expect(screen.queryByText('Denver Nuggets')).not.toBeInTheDocument();
+    // Search filters the cached list; no second fetch
     expect(teamService.getAllTeams).toHaveBeenCalledTimes(1);
   });
 
